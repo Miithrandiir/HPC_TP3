@@ -24,7 +24,7 @@ using namespace std;
  * 
  */
 
-struct zone {
+struct Zone {
   int x, y; // coordonnées du coin supérieur gauche de la zone
   int largeur, hauteur; // dimensions de la zone
 };
@@ -57,6 +57,8 @@ public:
    * processus récursif.
    */
   void genererImage(const Scene& sc, Image& im, int profondeur);
+
+  void genererImageParallele(const Scene& sc, Image& im, int profondeur, int thread);
 
 
   /**
