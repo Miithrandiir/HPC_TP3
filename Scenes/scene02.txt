@@ -1,0 +1,62 @@
+# couleur de fond blanche
+fond 1.0 1.0 1.O
+# intensite de la source ambiante
+ambiant 1.0 1.0 1.0
+# source blanche
+source  -2 2 0  2.0 2.0 2.0
+# source blanche
+source  4 5 0  2.0 2.0 2.0
+# plan horizontal bleu 
+materiau 0.2 0.2 0.98  0.3 0.5 0.7 10
+plan 0 1 0 0.5
+# sphère rouge
+materiau 0.9 0.2 0.2  0.2 0.2 0.7 100
+sphere 0 1.0 -3 1.0
+# sphère verte
+materiau 0.2 0.9 0.2  0.3 0.5 0.5 10
+sphere 0.0 0.0 -2 0.5
+#sphère bleue
+materiau 0.2 0.2 0.9  0.3 0.5 0.0 10
+
+sphere 0.5 0.0 -1.8 0.5
+
+#pyramide rouge
+materiau 0.8 0.2 0.2  0.1 0.5 0.5 100
+
+#base
+tri -2.36602 -0.4 -2.09806   -0.63398 -0.4 -3.09806   -1.63398 -0.4 -4.8301   
+tri -2.36602 -0.4 -2.09806   -1.63398 -0.4 -4.8301   -3.36602 -0.4 -3.8301   
+
+# face avant
+tri -2.36602 -0.4 -2.09806   -0.63398 -0.4 -3.09806   -2 1 -3.46408   
+
+#face droite
+tri -0.63398 -0.4 -3.09806   -1.63398 -0.4 -4.8301   -2 1 -3.46408   
+
+# face arrière
+tri -1.63398 -0.4 -4.8301   -3.36602 -0.4 -3.8301   -2 1 -3.46408   
+#  face gauche
+tri -3.36602 -0.4 -3.8301   -2.36602 -0.4 -2.09806   -2 1 -3.46408
+
+#pyramide jaune
+materiau 0.8 0.7 0.2  0.1 0.5 0.3 100
+
+#base
+tri 1 -0.4 -3  3 -0.4 -3  3 -0.4 -5
+tri 1 -0.4 -3  3 -0.4 -5  1 -0.4 -5
+
+
+# face avant
+tri 1 -0.4 -3  3 -0.4 -3  2 1 -4
+
+#face droite
+tri 3 -0.4 -3  3 -0.4 -5  2 1 -4
+
+# face arrière
+tri 3 -0.4 -5  1 -0.4 -5  2 1 -4
+#  face gauche
+tri 1 -0.4 -5  1 -0.4 -3  2 1 -4
+
+
+
+
