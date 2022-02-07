@@ -6,6 +6,8 @@
 std::mutex mutex_img;
 std::mutex mutex_cout;
 
+int Camera::actual_area = 0;
+
 Camera::Camera() {
     position = Point(0.0, 0.0, 2.0);;
     cible = Point(0.0, 0.0, 0.0);
@@ -64,16 +66,9 @@ void Camera::genererImageParallele(const Scene &sc, Image &im, int profondeur, i
 
     std::thread threads[thread];
 
-    int hauteurBande = im.getHauteur() / thread;
     for (int w = 0; w < thread; ++w) {
-        Zone zone;
-        zone.x = 0;
-        zone.y = hauteurBande * w;
-        zone.largeur = im.getLargeur();
 
-        zone.hauteur = hauteurBande;
-
-        threads[w] = std::thread(calculerZone, std::cref(sc), std::ref(im), profondeur, zone,
+        threads[w] = std::thread(calculerZone, std::cref(sc), std::ref(im), profondeur,
                                  std::cref(position));
 
     }
@@ -84,45 +79,82 @@ void Camera::genererImageParallele(const Scene &sc, Image &im, int profondeur, i
 
 }
 
-void Camera::calculerZone(const Scene &sc, Image &im, int profondeur, const Zone &area, const Point &position) {
-    auto start = std::chrono::steady_clock::now();
-    float cotePixel = 2.0f / area.largeur;
+void Camera::calculerZone(const Scene &sc, Image &im, int profondeur, const Point &position) {
 
-     mutex_cout.lock();
-     std::cout << "zone à calculer : " << " x: " << area.x << " y: " << area.y << std::endl;
-     mutex_cout.unlock();
+    while (true) {
 
-    for (int i = area.x; i < area.x + area.largeur; i++) {
-        for (int j = area.y; j < area.y + area.hauteur; j++) {
+        mutex_img.lock();
+        Zone area = zoneSuivante(im);
+        mutex_img.unlock();
+        if (area.x == -1 || area.y == -1) {
+            std::this_thread::yield();
+            return;
+        }
 
-            // calcul des coordonnées du centre du pixel
-            float milieuX = -1 + (i + 0.5f) * cotePixel;
-            float milieuY = (float) im.getHauteur() / (float) im.getLargeur()
-                            - (j + 0.5f) * cotePixel;
 
-            Point centre(milieuX, milieuY, 0);
+        auto start = std::chrono::steady_clock::now();
+        float cotePixel = 2.0f / im.getLargeur();
 
-            // Création du rayon
-            Vecteur dir(position, centre);
-            dir.normaliser();
-            Rayon ray(position, dir);
+        for (int i = area.x; i < area.x + area.largeur; i++) {
+            for (int j = area.y; j < area.y + area.hauteur; j++) {
 
-            // Lancer du rayon primaire
-            Intersection inter;
+                // calcul des coordonnées du centre du pixel
+                float milieuX = -1 + (i + 0.5f) * cotePixel;
+                float milieuY = (float) im.getHauteur() / (float) im.getLargeur()
+                                - (j + 0.5f) * cotePixel;
 
-            if (sc.intersecte(ray, inter)) {
-                im.setPixel(i, j, inter.getCouleur(sc, position, profondeur));
-            } else {
-                im.setPixel(i, j, sc.getFond());
-            }
+                Point centre(milieuX, milieuY, 0);
 
-        }// for j
+                // Création du rayon
+                Vecteur dir(position, centre);
+                dir.normaliser();
+                Rayon ray(position, dir);
 
-    }// for i
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    mutex_cout.lock();
-    std::cout << "[Thread - " << std::this_thread::get_id() << "] end in " << elapsed_seconds.count() << "s"
-              << std::endl;
-    mutex_cout.unlock();
+                // Lancer du rayon primaire
+                Intersection inter;
+
+                if (sc.intersecte(ray, inter)) {
+                    im.setPixel(i, j, inter.getCouleur(sc, position, profondeur));
+                } else {
+                    im.setPixel(i, j, sc.getFond());
+                }
+
+            }// for j
+
+        }// for i
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        mutex_cout.lock();
+        std::cout << "[Thread - " << std::this_thread::get_id() << "] end in " << elapsed_seconds.count() << "s"
+                  << std::endl;
+        mutex_cout.unlock();
+    }
+}
+
+Zone Camera::zoneSuivante(const Image &im) {
+
+    int nbImgLarg = im.getLargeur() / LARGZONE;
+    int nbImgHaut = im.getHauteur() / HAUTZONE;
+
+    int currentPosLarg = actual_area % nbImgLarg;
+    int currentPosHaut = actual_area / nbImgLarg;
+
+    if (currentPosHaut == nbImgHaut) {
+        Zone zone{-1, -1, -1, -1};
+        return zone;
+    }
+    Zone zone{currentPosLarg * LARGZONE, currentPosHaut * HAUTZONE};
+    zone.largeur = LARGZONE;
+    zone.hauteur = HAUTZONE;
+
+    if (currentPosLarg == nbImgLarg - 1) {
+        zone.largeur = im.getLargeur() - zone.x;
+    }
+
+    if (currentPosHaut == nbImgHaut - 1) {
+        zone.hauteur = im.getHauteur() - zone.y;
+    }
+    actual_area++;
+    return zone;
+
 }

@@ -10,6 +10,9 @@ using namespace std;
 #include "Scene.hpp"
 #include "Image.hpp"
 
+#define LARGZONE 32
+#define HAUTZONE 32
+
 /**
  * \class Camera
  * Classe représentant une caméra virtuelle simplifiée, générant des images
@@ -48,6 +51,8 @@ public:
      */
     ~Camera();
 
+    static int actual_area;
+
     /**
      *  Calcul de l'image d'une scène telle que vue par la caméra. La méthode
      * de calcul est le lancer de rayons récursif.
@@ -60,7 +65,9 @@ public:
 
     void genererImageParallele(const Scene &sc, Image &im, int profondeur, int thread);
 
-    static void calculerZone(const Scene &sc, Image &im, int profondeur, const Zone &area, const Point &position);
+    static void calculerZone(const Scene &sc, Image &im, int profondeur, const Point &position);
+
+    static Zone zoneSuivante(const Image &im);
 
     /**
      * Affichage des paramètres d'une caméra sur un flot de sortie,
