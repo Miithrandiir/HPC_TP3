@@ -12,7 +12,7 @@ using namespace std;
 // profondeur de la récursion pour le lancer de rayons
 #define PROF 2
 // nombre de threads à utiliser
-#define NBT 1
+#define NBT 16
 
 
 int main(int argc, char *argv[]){
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 
   // génération de l'image à partir de la caméra
 
-  cam.genererImage(sc, im, PROF);
+  cam.genererImageParallele(sc, im, PROF, NBT);
 
 
   // sauvegarde de l'image

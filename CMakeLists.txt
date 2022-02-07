@@ -42,8 +42,8 @@ set(HEADERS
     ./Src/Triangle.hpp
     )
 
-#add_definitions(-std=c++11 -O2 -pthread -g)
-add_compile_options(-std=c++11  -O2 -g)
+add_definitions(-std=c++11 -O2 -pthread -g)
+#add_compile_options(-std=c++11  -O2 -g)
 
 find_package( Threads )
 
